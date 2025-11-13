@@ -1,0 +1,113 @@
+Metadata-Version: 2.4
+Name: minor-project-cp-chatbot
+Version: 0.1.0
+Summary: Streamlit + FastAPI app that proxies to a Colab-hosted fine-tuned CP model
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.115.0
+Requires-Dist: uvicorn[standard]>=0.30.0
+Requires-Dist: httpx>=0.27.0
+Requires-Dist: pydantic>=2.7.0
+Requires-Dist: python-dotenv>=1.0.1
+Requires-Dist: streamlit>=1.38.0
+Provides-Extra: dev
+Requires-Dist: ruff>=0.6.0; extra == "dev"
+Requires-Dist: pytest>=8.2.0; extra == "dev"
+
+## Competitive Programming Chatbot - FastAPI + Streamlit (uv)
+
+This project provides a minimal end-to-end app:
+- Backend: FastAPI that proxies requests to your supervised fine-tuned model endpoint hosted on Google Colab/HuggingFace.
+- Frontend: Streamlit UI for submitting competitive programming problems and viewing responses.
+- Env/Runner: Uses `uv` (fast Python package/dependency manager by Astral) for isolated, reproducible runs without virtualenv boilerplate.
+
+### Architecture
+- `backend/` exposes:
+  - `POST /solve` → forwards to your Colab endpoint (`COLAB_ENDPOINT`) and normalizes the response.
+  - `GET /health` → quick health/config check.
+- `frontend/` Streamlit app calls the FastAPI backend.
+
+### Prerequisites
+- Python 3.10+ recommended.
+- Install `uv` (one-liner):
+
+```bash
+# Windows Powershell
+winget install --id=astral-sh.uv -e
+# or via pipx
+pipx install uv
+```
+
+Verify installation:
+```bash
+uv --version
+```
+
+### Configuration
+The backend needs your Colab endpoint URL and (optionally) an API key:
+- `COLAB_ENDPOINT`: e.g. `https://<your-colab-notebook-tunnel>/predict`
+- `COLAB_API_KEY`: optional, if your endpoint requires auth (sent as `Authorization: Bearer <key>`).
+
+You can set them as environment variables or in a `.env` file in the project root:
+```
+COLAB_ENDPOINT=https://<your-colab-endpoint>/predict
+# Optional:
+# COLAB_API_KEY=your_api_key
+```
+
+Frontend can be pointed to a custom backend URL via the sidebar, or set:
+```
+BACKEND_URL=http://localhost:8000
+```
+
+### Install and Run (uv, project-managed)
+This repo now includes a `pyproject.toml`. `uv` will create and manage an isolated environment for this project.
+
+1) Install deps and create the project environment:
+```bash
+uv sync
+```
+
+2) Start the backend (FastAPI):
+```bash
+uv run uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+3) In a separate terminal, start the frontend (Streamlit):
+```bash
+uv run streamlit run frontend/app.py
+```
+
+3) Open the UI:
+- Streamlit: http://localhost:8501
+- FastAPI docs: http://localhost:8000/docs
+
+### Environment Variables (Windows Powershell)
+Temporarily for the session:
+```powershell
+$env:COLAB_ENDPOINT = "https://<your-colab-endpoint>/predict"
+$env:COLAB_API_KEY = "optional_api_key"
+```
+Or create a `.env` file in the project root with the same keys.
+
+### File Structure
+```
+backend/
+  main.py          # FastAPI app; /health and /solve
+frontend/
+  app.py           # Streamlit UI
+config.py          # Loads .env and exposes env vars for both sides
+```
+
+### Notes
+- The backend normalizes response fields from the Colab endpoint by looking for `output`, `response`, `answer`, or `text`.
+- Increase `timeout` in the backend and frontend if your model needs more time.
+- You can tweak `temperature` and `max_tokens` in the sidebar.
+
+### Troubleshooting
+- If Streamlit shows a backend error, check FastAPI logs and verify:
+  - `COLAB_ENDPOINT` is set and reachable from your machine.
+  - Any firewall/tunnel (e.g., Colab public URL) is active.
+  - `COLAB_API_KEY` is set if your endpoint expects authorization.
+
+

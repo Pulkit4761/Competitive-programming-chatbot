@@ -1,0 +1,22 @@
+# Bytecode and caches
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Streamlit/uv caches
+.streamlit/
+.uv/
+
+

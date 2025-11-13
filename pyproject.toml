@@ -1,0 +1,44 @@
+[project]
+name = "minor-project-cp-chatbot"
+version = "0.1.0"
+description = "Streamlit + FastAPI app that proxies to a Colab-hosted fine-tuned CP model"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.7.0",
+    "python-dotenv>=1.0.1",
+    "streamlit>=1.38.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.6.0",
+    "pytest>=8.2.0",
+]
+
+[tool.uv]
+# uv will create and manage an isolated environment for this project
+package = true
+
+[tool.setuptools.packages.find]
+include = ["backend*", "frontend*"]
+exclude = ["minor_project*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["backend", "frontend"]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
+
