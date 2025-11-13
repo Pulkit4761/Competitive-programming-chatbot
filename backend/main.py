@@ -66,7 +66,6 @@ async def solve(req: SolveRequest) -> SolveResponse:
     try:
         data = resp.json()
     except ValueError:
-        # If Colab returns plain text
         data = {"output": resp.text}
 
     # Normalize expected output field
